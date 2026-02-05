@@ -1,4 +1,4 @@
-import SlotMachine from './SlotMachine';
+import SlotMachine from './containers/SlotMachine';
 
 function App() {
     return (
