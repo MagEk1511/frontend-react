@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { toggleFavorite } from '../store/favoritesSlice';
 import Input from './Input';
 import styles from './MovieSearch.module.css';
 
@@ -20,6 +22,9 @@ const MovieSearch = () => {
     const [movies, setMovies] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    const dispatch = useDispatch();
+    const favoriteMovies = useSelector((state) => state.favorites.favoriteMovies);
 
 
     useEffect(() => {
@@ -88,20 +93,32 @@ const MovieSearch = () => {
 
             <div className={styles.grid}>
                 {filteredMovies.length > 0 ? (
-                    filteredMovies.map((movie) => (
-                        <div key={movie.filmId} className={styles.movieCard}>
-                            <img src={movie.posterUrlPreview} alt={movie.nameRu} className={styles.poster} />
-                            <div className={styles.info}>
-                                <h3 className={styles.movieTitle}>{movie.nameRu || movie.nameEn}</h3>
-                                <div className={styles.movieMeta}>
-                                    <span>{movie.year}</span>
-                                    {movie.rating && movie.rating !== 'null' && (
-                                        <div className={styles.rating}>{movie.rating}</div>
-                                    )}
+                    filteredMovies.map((movie) => {
+                        const isFavorite = favoriteMovies.includes(movie.filmId);
+                        return (
+                            <div key={movie.filmId} className={styles.movieCard}>
+                                <div className={styles.posterContainer}>
+                                    <img src={movie.posterUrlPreview} alt={movie.nameRu} className={styles.poster} />
+                                    <button
+                                        className={`${styles.favoriteBtn} ${isFavorite ? styles.isFavorite : ''}`}
+                                        onClick={() => dispatch(toggleFavorite(movie.filmId))}
+                                        title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                                    >
+                                        {isFavorite ? '❤️' : '🤍'}
+                                    </button>
+                                </div>
+                                <div className={styles.info}>
+                                    <h3 className={styles.movieTitle}>{movie.nameRu || movie.nameEn}</h3>
+                                    <div className={styles.movieMeta}>
+                                        <span>{movie.year}</span>
+                                        {movie.rating && movie.rating !== 'null' && (
+                                            <div className={styles.rating}>{movie.rating}</div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
                 ) : (
                     !loading && <div className={styles.noResults}>No movies found for your criteria.</div>
                 )}
